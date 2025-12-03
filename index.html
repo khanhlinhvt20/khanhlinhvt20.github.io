@@ -33,8 +33,6 @@
                 <img src="images/klsticker.png" class="sticker rabbit" alt="">
             </div>
         </div>
-
-        <!-- <img src="images/klsticker.png" class="pig-sticker" alt=""> -->
     </section>
 
     <section class="page page-2">
@@ -85,14 +83,14 @@
             <h1 class="thankyou-title">THANK YOU</h1>
         </div>
     </section>
-
     <script>
+    document.addEventListener('DOMContentLoaded', () => {
         const sections = document.querySelectorAll('.page');
         let currentIndex = 0;
         let isScrolling = false;
         let isGalleryOpen = false;
 
-        function smoothScrollTo(targetY, duration = 1200) {
+        function smoothScrollTo(targetY, duration = 800) {
             const startY = window.scrollY || window.pageYOffset;
             const distance = targetY - startY;
             let startTime = null;
@@ -102,7 +100,7 @@
                 const elapsed = timestamp - startTime;
                 const progress = Math.min(elapsed / duration, 1);
 
-                // easing: easeInOut
+
                 const easedProgress = 0.5 - Math.cos(progress * Math.PI) / 2;
 
                 window.scrollTo(0, startY + distance * easedProgress);
@@ -121,7 +119,7 @@
             if (index < 0 || index >= sections.length) return;
             isScrolling = true;
             const targetY = sections[index].offsetTop;
-            smoothScrollTo(targetY, 1200);
+            smoothScrollTo(targetY, 800);
         }
 
         function updateCurrentIndex() {
@@ -140,10 +138,22 @@
             currentIndex = closestIndex;
         }
 
+
         window.addEventListener('load', updateCurrentIndex);
+
+
         window.addEventListener('resize', () => {
+            updateCurrentIndex();
             scrollToSection(currentIndex);
         });
+
+
+        window.addEventListener('scroll', () => {
+            if (!isScrolling) {
+                updateCurrentIndex();
+            }
+        });
+
 
         window.addEventListener('wheel', (e) => {
             if (isScrolling || isGalleryOpen) return;
@@ -165,7 +175,6 @@
         window.addEventListener('keydown', (e) => {
             if (isGalleryOpen) {
                 if (e.key === 'Escape') {
-                    closeGallery();
                 }
                 return;
             }
@@ -182,6 +191,38 @@
                 scrollToSection(currentIndex);
             }
         });
-    </script>
+
+        let touchStartY = null;
+
+        window.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                touchStartY = e.touches[0].clientY;
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchend', (e) => {
+            if (touchStartY === null || isScrolling || isGalleryOpen) return;
+
+            const touchEndY = e.changedTouches[0].clientY;
+            const deltaY = touchStartY - touchEndY;
+            const threshold = 50; 
+
+            if (Math.abs(deltaY) < threshold) {
+                touchStartY = null;
+                return;
+            }
+            if (deltaY > 0 && currentIndex < sections.length - 1) {
+                currentIndex++;
+                scrollToSection(currentIndex);
+            }
+            else if (deltaY < 0 && currentIndex > 0) {
+                currentIndex--;
+                scrollToSection(currentIndex);
+            }
+
+            touchStartY = null;
+        }, { passive: true });
+    });
+</script>
 </body>
 </html>
