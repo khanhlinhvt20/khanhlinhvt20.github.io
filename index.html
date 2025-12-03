@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin cá nhân</title>
+    <link rel="stylesheet" href="font.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <section class="page page-1">
+        <div class="top-bar"></div>
+
+        <div class="container">
+            <div class="left-box">
+                <h1 class="title">THÔNG TIN<br>CÁ NHÂN</h1>
+                <hr class="underline">
+
+                <div class="info-text">
+                    <p><strong>Tên:</strong> Vũ Trần Khánh Linh</p>
+                    <p><strong>DoB:</strong> 20/02/2004</p>
+                    <p><strong>Trường:</strong> Đại học Ngoại thương</p>
+                    <p><strong>Chuyên ngành:</strong> Kinh tế Đối ngoại</p>
+                    <p><strong>Email:</strong> khanhlinhvt20@gmail.com</p>
+                </div>
+            </div>
+
+            <div class="photo-box">
+                <img src="images/profile.jpeg" class="profile-photo" alt="Ảnh cá nhân" id="open-gallery">
+
+                <img src="images/cat.png" class="sticker cat" alt="">
+                <img src="images/klsticker.png" class="sticker rabbit" alt="">
+            </div>
+        </div>
+
+        <!-- <img src="images/klsticker.png" class="pig-sticker" alt=""> -->
+    </section>
+
+    <section class="page page-2">
+        <div class="fan-wrapper">
+            <div class="fan-grid">
+                <div class="fan-block fan-img">
+                    <img src="images/t1.png" alt="T1">
+                    <img src="images/t1sticker.png" class="fan-sticker" alt="">
+                </div>
+
+                <div class="fan-block fan-text">
+                    <h2 class="fan-title">
+                        TCON MẠNH NHẤT<br>
+                        KÊNH CHAT LEVI
+                    </h2>
+                    <p class="fan-desc">
+                        Tự hào là fan T1 – đội tuyển Liên Minh Huyền Thoại giàu thành tích
+                        nhất lịch sử. Ở đâu có T1, ở đó có Tcon Khánh Linh – máu lửa,
+                        trung thành và không quên donate cho anh Levi đều tay, góp chút
+                        yêu thương nuôi dưỡng đam mê và động lực mỗi buổi stream.
+                    </p>
+                </div>
+
+                <div class="fan-block fan-text">
+                    <h2 class="fan-title">
+                        FAN MU 20 NĂM CÓ<br>
+                        TRUYỀN THỐNG
+                    </h2>
+                    <p class="fan-desc">
+                        Tình yêu dành cho Manchester United không chỉ là sở thích, mà
+                        là gia truyền – ông nội một thời sống cùng những trận cầu Quỷ Đỏ,
+                        bố tiếp nối niềm đam mê qua từng mùa giải thăng trầm, và đến tôi –
+                        thế hệ tiếp theo, vẫn đỏ máu áo, vững niềm tin, giữ trọn lời hứa
+                        fan MU đến cùng.
+                    </p>
+                </div>
+
+                <div class="fan-block fan-img">
+                    <img src="images/mu.png" alt="MU">
+                    <img src="images/musticker.png" class="fan-sticker" alt="">
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- page3 -->
+    <section class="page page-3">
+        <div class="thankyou-wrapper">
+            <h1 class="thankyou-title">THANK YOU</h1>
+        </div>
+    </section>
+
+    <script>
+        const sections = document.querySelectorAll('.page');
+        let currentIndex = 0;
+        let isScrolling = false;
+        let isGalleryOpen = false;
+
+        function smoothScrollTo(targetY, duration = 1200) {
+            const startY = window.scrollY || window.pageYOffset;
+            const distance = targetY - startY;
+            let startTime = null;
+
+            function animationStep(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // easing: easeInOut
+                const easedProgress = 0.5 - Math.cos(progress * Math.PI) / 2;
+
+                window.scrollTo(0, startY + distance * easedProgress);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animationStep);
+                } else {
+                    isScrolling = false;
+                }
+            }
+
+            requestAnimationFrame(animationStep);
+        }
+
+        function scrollToSection(index) {
+            if (index < 0 || index >= sections.length) return;
+            isScrolling = true;
+            const targetY = sections[index].offsetTop;
+            smoothScrollTo(targetY, 1200);
+        }
+
+        function updateCurrentIndex() {
+            let closestIndex = 0;
+            let minDistance = Infinity;
+            const scrollY = window.scrollY || window.pageYOffset;
+
+            sections.forEach((sec, idx) => {
+                const distance = Math.abs(sec.offsetTop - scrollY);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = idx;
+                }
+            });
+
+            currentIndex = closestIndex;
+        }
+
+        window.addEventListener('load', updateCurrentIndex);
+        window.addEventListener('resize', () => {
+            scrollToSection(currentIndex);
+        });
+
+        window.addEventListener('wheel', (e) => {
+            if (isScrolling || isGalleryOpen) return;
+
+            const deltaY = e.deltaY;
+            if (Math.abs(deltaY) < 10) return;
+
+            e.preventDefault();
+
+            if (deltaY > 0 && currentIndex < sections.length - 1) {
+                currentIndex++;
+                scrollToSection(currentIndex);
+            } else if (deltaY < 0 && currentIndex > 0) {
+                currentIndex--;
+                scrollToSection(currentIndex);
+            }
+        }, { passive: false });
+
+        window.addEventListener('keydown', (e) => {
+            if (isGalleryOpen) {
+                if (e.key === 'Escape') {
+                    closeGallery();
+                }
+                return;
+            }
+
+            if (isScrolling) return;
+
+            if ((e.key === 'ArrowDown' || e.key === 'PageDown') && currentIndex < sections.length - 1) {
+                e.preventDefault();
+                currentIndex++;
+                scrollToSection(currentIndex);
+            } else if ((e.key === 'ArrowUp' || e.key === 'PageUp') && currentIndex > 0) {
+                e.preventDefault();
+                currentIndex--;
+                scrollToSection(currentIndex);
+            }
+        });
+    </script>
+</body>
+</html>
